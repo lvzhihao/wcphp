@@ -83,5 +83,3 @@ ZEND_END_MODULE_GLOBALS(wordcheck)
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-
-int php_wordcheck_reset(void);
