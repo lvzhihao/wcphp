@@ -8,6 +8,6 @@
 // ARG_ENABLE("wordcheck", "enable wordcheck support", "no");
 
 if (PHP_WORDCHECK != "no") {
-	EXTENSION("wordcheck", "wordcheck.c");
+	EXTENSION("wordcheck", "wordcheck.c", PHP_EXTNAME_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
 }
 

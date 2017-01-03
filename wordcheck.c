@@ -1,22 +1,22 @@
 /*
-  +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
-  +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2011 The PHP Group                                |
-  +----------------------------------------------------------------------+
-  | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
-  | available through the world-wide-web at the following url:           |
-  | http://www.php.net/license/3_01.txt                                  |
-  | If you did not receive a copy of the PHP license and are unable to   |
-  | obtain it through the world-wide-web, please send a note to          |
-  | license@php.net so we can mail you a copy immediately.               |
-  +----------------------------------------------------------------------+
-  | Author:                                                              |
-  +----------------------------------------------------------------------+
-*/
+   +----------------------------------------------------------------------+
+   | PHP Version 7                                                        |
+   +----------------------------------------------------------------------+
+   | Copyright (c) 1997-2016 The PHP Group                                |
+   +----------------------------------------------------------------------+
+   | This source file is subject to version 3.01 of the PHP license,      |
+   | that is bundled with this package in the file LICENSE, and is        |
+   | available through the world-wide-web at the following url:           |
+   | http://www.php.net/license/3_01.txt                                  |
+   | If you did not receive a copy of the PHP license and are unable to   |
+   | obtain it through the world-wide-web, please send a note to          |
+   | license@php.net so we can mail you a copy immediately.               |
+   +----------------------------------------------------------------------+
+   | Author:                                                              |
+   +----------------------------------------------------------------------+
+   */
 
-/* $Id: header 310447 2011-04-23 21:14:10Z bjori $ */
+/* $Id$ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -40,66 +40,58 @@ static wcMM *phpwcMM;
 static wcmmTable *phpwcmmtable;
 
 /* If you declare any globals in php_wordcheck.h uncomment this:
-ZEND_DECLARE_MODULE_GLOBALS(wordcheck)
-*/
+   ZEND_DECLARE_MODULE_GLOBALS(wordcheck)
+   */
 
 /* True global resources - no need for thread safety here */
 static int le_wordcheck;
 
-/* {{{ wordcheck_functions[]
- *
- * Every user visible function must have an entry in wordcheck_functions[].
- */
-const zend_function_entry wordcheck_functions[] = {
-    PHP_FE(wordcheck_reset, NULL)
-	PHP_FE(wordcheck_filter, NULL)
-	    PHP_FE(wordcheck_set_replace_op, NULL)
-		PHP_FE(wordcheck_set_replace_len, NULL){NULL, NULL, NULL}  //兼容5.3.8之前版本
-    //PHP_FE_END	/* Must be the last line in wordcheck_functions[] */
-};
-/* }}} */
-
-/* {{{ wordcheck_module_entry
- */
-zend_module_entry wordcheck_module_entry = {
-#if ZEND_MODULE_API_NO >= 20010901
-    STANDARD_MODULE_HEADER,
-#endif
-    "wordcheck",
-    wordcheck_functions,
-    PHP_MINIT(wordcheck),
-    PHP_MSHUTDOWN(wordcheck),
-    PHP_RINIT(wordcheck),     /* Replace with NULL if there's nothing to do at request start */
-    PHP_RSHUTDOWN(wordcheck), /* Replace with NULL if there's nothing to do at request end */
-    PHP_MINFO(wordcheck),
-#if ZEND_MODULE_API_NO >= 20010901
-    "0.1", /* Replace with version number for your extension */
-#endif
-    STANDARD_MODULE_PROPERTIES};
-/* }}} */
-
-#ifdef COMPILE_DL_WORDCHECK
-ZEND_GET_MODULE(wordcheck)
-#endif
-
 PHP_INI_BEGIN()
-PHP_INI_ENTRY("wordcheck.enable", "0", PHP_INI_ALL, NULL)       /* 是否启用 */
-PHP_INI_ENTRY("wordcheck.deny_docs", "deny", PHP_INI_ALL, NULL) /* 阻止字典 */
+PHP_INI_ENTRY("wordcheck.enable", "0", PHP_INI_ALL, NULL)       /*  是否启用 */
+PHP_INI_ENTRY("wordcheck.deny_docs", "deny", PHP_INI_ALL, NULL) /*  阻止字典 */
 PHP_INI_END()
 
-/* {{{ php_wordcheck_init_globals
- */
-/* Uncomment this function if you have INI entries
-static void php_wordcheck_init_globals(zend_wordcheck_globals *wordcheck_globals)
+/* Remove the following function when you have successfully modified config.m4
+	   so that your module can be compiled into PHP, it exists only for testing
+	   purposes. */
+
+/* Every user-visible function in PHP should document itself in the source */
+/* {{{ proto string confirm_wordcheck_compiled(string arg)
+	   Return a string to confirm that the module is compiled in */
+PHP_FUNCTION(confirm_wordcheck_compiled)
 {
-	wordcheck_globals->global_value = 0;
-	wordcheck_globals->global_string = NULL;
+    char *arg = NULL;
+    size_t arg_len, len;
+    zend_string *strg;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &arg, &arg_len) == FAILURE) {
+	return;
+    }
+
+    strg = strpprintf(0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "wordcheck", arg);
+
+    RETURN_STR(strg);
 }
+/* }}} */
+/* The previous line is meant for vim and emacs, so it can correctly fold and
+   unfold functions in source code. See the corresponding marks just before
+   function definition, where the functions purpose is also documented. Please
+   follow this convention for the convenience of others editing your code.
+   */
+
+/* {{{ php_wordcheck_init_globals
 */
+/* Uncomment this function if you have INI entries
+   static void php_wordcheck_init_globals(zend_wordcheck_globals *wordcheck_globals)
+   {
+   wordcheck_globals->global_value = 0;
+   wordcheck_globals->global_string = NULL;
+   }
+   */
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION
- */
+*/
 PHP_MINIT_FUNCTION(wordcheck)
 {
     REGISTER_INI_ENTRIES();
@@ -114,15 +106,15 @@ PHP_MINIT_FUNCTION(wordcheck)
 	}
     }
 
-    /* If you have INI entries, uncomment these lines 
-	REGISTER_INI_ENTRIES();
-	*/
+    /* If you have INI entries, uncomment these lines
+	   REGISTER_INI_ENTRIES();
+	   */
     return SUCCESS;
 }
 /* }}} */
 
 /* {{{ PHP_MSHUTDOWN_FUNCTION
- */
+*/
 PHP_MSHUTDOWN_FUNCTION(wordcheck)
 {
     if (phpwcstatus == 0) {
@@ -132,28 +124,33 @@ PHP_MSHUTDOWN_FUNCTION(wordcheck)
     UNREGISTER_INI_ENTRIES();
 
     /* uncomment this line if you have INI entries
-	UNREGISTER_INI_ENTRIES();
-	*/
+	   UNREGISTER_INI_ENTRIES();
+	   */
     return SUCCESS;
 }
 /* }}} */
 
 /* Remove if there's nothing to do at request start */
 /* {{{ PHP_RINIT_FUNCTION
- */
+*/
 PHP_RINIT_FUNCTION(wordcheck)
 {
+#if defined(COMPILE_DL_WORDCHECK) && defined(ZTS)
+    ZEND_TSRMLS_CACHE_UPDATE();
+#endif
+
     if (php_wordcheck_reset() == FAILURE) {
 	wordcheck_reset_replace_op();
 	wordcheck_reset_replace_len();
     }
+
     return SUCCESS;
 }
 /* }}} */
 
 /* Remove if there's nothing to do at request end */
 /* {{{ PHP_RSHUTDOWN_FUNCTION
- */
+*/
 PHP_RSHUTDOWN_FUNCTION(wordcheck)
 {
     return SUCCESS;
@@ -161,7 +158,7 @@ PHP_RSHUTDOWN_FUNCTION(wordcheck)
 /* }}} */
 
 /* {{{ PHP_MINFO_FUNCTION
- */
+*/
 PHP_MINFO_FUNCTION(wordcheck)
 {
     php_info_print_table_start();
@@ -172,10 +169,46 @@ PHP_MINFO_FUNCTION(wordcheck)
     php_info_print_table_end();
 
     /* Remove comments if you have entries in php.ini
-	DISPLAY_INI_ENTRIES();
-	*/
+	   DISPLAY_INI_ENTRIES();
+	   */
 }
 /* }}} */
+
+/* {{{ wordcheck_functions[]
+ *
+ * Every user visible function must have an entry in wordcheck_functions[].
+ */
+const zend_function_entry wordcheck_functions[] = {
+    PHP_FE(confirm_wordcheck_compiled, NULL) /*  For testing,remove later. */
+    PHP_FE(wordcheck_reset, NULL)
+	PHP_FE(wordcheck_filter, NULL)
+	    PHP_FE(wordcheck_set_replace_op, NULL)
+		PHP_FE(wordcheck_set_replace_len, NULL){NULL, NULL, NULL}
+    //PHP_FE_END /* Must be the last line in wordcheck_functions[] */
+};
+/* }}} */
+
+/* {{{ wordcheck_module_entry
+*/
+zend_module_entry wordcheck_module_entry = {
+    STANDARD_MODULE_HEADER,
+    "wordcheck",
+    wordcheck_functions,
+    PHP_MINIT(wordcheck),
+    PHP_MSHUTDOWN(wordcheck),
+    PHP_RINIT(wordcheck),     /* Replace with NULL if there's nothing to do at request start */
+    PHP_RSHUTDOWN(wordcheck), /* Replace with NULL if there's nothing to do at request end */
+    PHP_MINFO(wordcheck),
+    PHP_WORDCHECK_VERSION,
+    STANDARD_MODULE_PROPERTIES};
+/* }}} */
+
+#ifdef COMPILE_DL_WORDCHECK
+#ifdef ZTS
+ZEND_TSRMLS_CACHE_DEFINE()
+#endif
+ZEND_GET_MODULE(wordcheck)
+#endif
 
 int php_wordcheck_reset(void)
 {
@@ -198,7 +231,7 @@ PHP_FUNCTION(wordcheck_reset)
 PHP_FUNCTION(wordcheck_set_replace_op)
 {
     char *arg = NULL;
-    int arg_len;
+    size_t arg_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
 	return;
@@ -229,7 +262,8 @@ PHP_FUNCTION(wordcheck_set_replace_len)
 PHP_FUNCTION(wordcheck_filter)
 {
     char *arg = NULL;
-    int arg_len, len;
+    size_t arg_len;
+    int len;
     char *strg;
     zval *arr = NULL;
     wcList *list;
@@ -246,45 +280,46 @@ PHP_FUNCTION(wordcheck_filter)
 	return;
     }
 
+    /*  */
     if (arr == NULL) {
-	num = wordcheck_mm_check(phpwcMM, phpwcmmtable, arg, arg_len, &strg, &len, NULL);
+	num = wordcheck_mm_check(phpwcMM, phpwcmmtable, arg, (int)arg_len, &strg, &len, NULL);
     } else {
 	num = wordcheck_mm_check(phpwcMM, phpwcmmtable, arg, arg_len, &strg, &len, &list);
-	array_init(arr);
-	zval *words;
+	//array_init(arr);
+	zend_hash_clean(Z_ARRVAL_P(arr));  //keng
 	while (wordcheck_list_get_current(list, &lt) == SUCCESS) {
 	    wcResult *res = (wcResult *)lt->val;
 	    //printf("-->禁词: %s\n", res->string);
 	    //printf("-->起始: %d\n", res->start);
 	    //printf("-->长度: %d\n\n", res->len);
-	    MAKE_STD_ZVAL(words);
-	    array_init(words);
-	    add_assoc_string(words, "word", res->string, strlen(res->string));
 
-	    zval *info;
-	    MAKE_STD_ZVAL(info);
-	    array_init(info);
-	    add_assoc_long(info, "weight", res->info->weight);
+	    zval words;
+	    array_init(&words);
+	    add_assoc_string(&words, "word", res->string);
 
-	    add_assoc_zval(words, "info", info);
-	    add_assoc_long(words, "start", res->start);
-	    add_assoc_long(words, "length", res->len);
+	    zval info;
+	    array_init(&info);
+	    add_assoc_long(&info, "weight", res->info->weight);
 
-	    add_index_zval(arr, key, words);
+	    add_assoc_zval(&words, "info", &info);
+	    add_assoc_long(&words, "start", res->start);
+	    add_assoc_long(&words, "length", res->len);
+
+	    add_index_zval(arr, key, &words);
 
 	    key++;
 	    wordcheck_list_next_item(&list);
 	}
     }
     RETVAL_TRUE;
-    RETURN_STRINGL(strg, len, 1);
+    RETURN_STRINGL(strg, len);
 }
 
 /*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+	 * Local variables:
+	 * tab-width: 4
+	 * c-basic-offset: 4
+	 * End:
+	 * vim600: noet sw=4 ts=4 fdm=marker
+	 * vim<600: noet sw=4 ts=4
+	 */
