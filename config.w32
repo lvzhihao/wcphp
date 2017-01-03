@@ -7,7 +7,7 @@
 // Otherwise, use ARG_ENABLE
 // ARG_ENABLE("wordcheck", "enable wordcheck support", "no");
 
-if (PHP_WORDCHECKR != "no") {
+if (PHP_WORDCHECK != "no") {
 	EXTENSION("wordcheck", "wordcheck.c");
 }
 

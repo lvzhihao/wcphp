@@ -78,7 +78,7 @@ zend_module_entry wordcheck_module_entry = {
     STANDARD_MODULE_PROPERTIES};
 /* }}} */
 
-#ifdef COMPILE_DL_WORDCHECKR
+#ifdef COMPILE_DL_WORDCHECK
 ZEND_GET_MODULE(wordcheck)
 #endif
 

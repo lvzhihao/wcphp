@@ -18,18 +18,18 @@
 
 /* $Id: header 310447 2011-04-23 21:14:10Z bjori $ */
 
-#ifndef PHP_WORDCHECKR_H
-#define PHP_WORDCHECKR_H
+#ifndef PHP_WORDCHECK_H
+#define PHP_WORDCHECK_H
 
 extern zend_module_entry wordcheck_module_entry;
 #define phpext_wordcheck_ptr &wordcheck_module_entry
 
 #ifdef PHP_WIN32
-#define PHP_WORDCHECKR_API __declspec(dllexport)
+#define PHP_WORDCHECK_API __declspec(dllexport)
 #elif defined(__GNUC__) && __GNUC__ >= 4
-#define PHP_WORDCHECKR_API __attribute__((visibility("default")))
+#define PHP_WORDCHECK_API __attribute__((visibility("default")))
 #else
-#define PHP_WORDCHECKR_API
+#define PHP_WORDCHECK_API
 #endif
 
 #ifdef ZTS
@@ -62,18 +62,18 @@ ZEND_END_MODULE_GLOBALS(wordcheck)
    variables used by that function, or better yet, pass in TSRMLS_CC
    after the last function argument and declare your utility function
    with TSRMLS_DC after the last declared argument.  Always refer to
-   the globals in your function as WORDCHECKR_G(variable).  You are 
+   the globals in your function as WORDCHECK_G(variable).  You are 
    encouraged to rename these macros something shorter, see
    examples in any other php module directory.
 */
 
 #ifdef ZTS
-#define WORDCHECKR_G(v) TSRMG(wordcheck_globals_id, zend_wordcheck_globals *, v)
+#define WORDCHECK_G(v) TSRMG(wordcheck_globals_id, zend_wordcheck_globals *, v)
 #else
-#define WORDCHECKR_G(v) (wordcheck_globals.v)
+#define WORDCHECK_G(v) (wordcheck_globals.v)
 #endif
 
-#endif /* PHP_WORDCHECKR_H */
+#endif /* PHP_WORDCHECK_H */
 
 /*
  * Local variables:
